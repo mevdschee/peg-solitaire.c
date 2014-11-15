@@ -197,9 +197,39 @@ bool gameEnded(board_s *board) {
 	return count==0;
 }
 
-void initialize(board_s *board) {
+void initialize(board_s *board, int8_t layout) {
 	int8_t x,y;
-	int8_t configuration[SIZE][SIZE*2] = {
+	int8_t configuration[5][SIZE][SIZE*2] = {{
+		"                  ",
+		"      o o o       ",
+		"    o o o o o     ",
+		"  o o o . o o o   ",
+		"  o o o o o o o   ",
+		"  o o o o o o o   ",
+		"    o o o o o     ",
+		"      o o o       ",
+		"                  "
+	},{
+		"      o o o       ",
+		"      o o o       ",
+		"      o o o       ",
+		"o o o o o o o o o ",
+		"o o o o . o o o o ",
+		"o o o o o o o o o ",
+		"      o o o       ",
+		"      o o o       ",
+		"      o o o       "
+	},{
+		"      o o o       ",
+		"      o o o       ",
+		"      o o o       ",
+		"  o o o o o o o o ",
+		"  o o o . o o o o ",
+		"  o o o o o o o o ",
+		"      o o o       ",
+		"      o o o       ",
+		"                  "
+	},{
 		"                  ",
 		"      o o o       ",
 		"      o o o       ",
@@ -209,18 +239,28 @@ void initialize(board_s *board) {
 		"      o o o       ",
 		"      o o o       ",
 		"                  "
-	};
+	},{
+		"        o         ",
+		"      o o o       ",
+		"    o o o o o     ",
+		"  o o o o o o o   ",
+		"o o o o . o o o o ",
+		"  o o o o o o o   ",
+		"    o o o o o     ",
+		"      o o o       ",
+		"        o         "
+	}};
 	(*board).size = 9;
 	(*board).cursor.x = 4;
 	(*board).cursor.y = 4;
 	(*board).win.x = 4;
-	(*board).win.y = 4;
+	(*board).win.y = (layout==0)?5:4;
 	(*board).selected = false;
 
 	memset((*board).field,0,sizeof((*board).field));
 	for (y=0;y<(*board).size;y++) {
 		for (x=0;x<(*board).size;x++) {
-			(*board).field[x][y]=configuration[y][x*2];
+			(*board).field[x][y]=configuration[layout][y][x*2];
 		}
 	}
 }
@@ -260,13 +300,26 @@ int main(int argc, char *argv[]) {
 	board_s board_alloc,*board=&board_alloc;
 	char c;
 	bool success;
+	int8_t layout = 3;
+
+	if (true&& argc == 2 && strcmp(argv[1],"french")==0) {
+		layout = 0;
+	} else if (argc == 2 && strcmp(argv[1],"german")==0) {
+		layout = 1;
+	} else if (argc == 2 && strcmp(argv[1],"asymmetric")==0) {
+		layout = 2;
+	} else if (argc == 2 && strcmp(argv[1],"english")==0) {
+		layout = 3;
+	} else if (argc == 2 && strcmp(argv[1],"diamond")==0) {
+		layout = 4;
+	}
 
 	printf("\033[?25l\033[2J\033[H");
 
 	// register signal handler for when ctrl-c is pressed
 	signal(SIGINT, signal_callback_handler);
 
-	initialize(board);
+	initialize(board,layout);
 	drawBoard(board);
 	setBufferedInput(false);
 	while (true) {
@@ -316,7 +369,7 @@ int main(int argc, char *argv[]) {
 			printf("       RESTART? (y/n)       \n");
 			c=getchar();
 			if (c=='y'){
-				initialize(board);
+				initialize(board,layout);
 			}
 			drawBoard(board);
 		}
