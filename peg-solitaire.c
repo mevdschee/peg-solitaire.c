@@ -31,30 +31,30 @@ typedef struct {
 	bool selected;
 } board_s;
 
-void drawBoard(board_s board) {
+void drawBoard(board_s *board) {
 	int8_t x,y,count=0;
 
 	printf("\033[H");
 
-	for (y=0;y<board.size;y++) {
-		for (x=0;x<board.size;x++) {
-			count+=board.field[x][y]=='o';
+	for (y=0;y<(*board).size;y++) {
+		for (x=0;x<(*board).size;x++) {
+			count+=(*board).field[x][y]=='o';
 		}
 	}
 	printf("peg-solitaire.c %7d pegs\n\n",count);
 
-	for (y=0;y<board.size;y++) {
-		for (x=0;x<14-board.size;x++) {
+	for (y=0;y<(*board).size;y++) {
+		for (x=0;x<14-(*board).size;x++) {
 			printf(" ");
 		}
-		for (x=0;x<board.size;x++) {
-			if (board.cursor.x == x && board.cursor.y == y) {
-				printf("\b%c%c%c",board.selected?'<':'(',board.field[x][y],board.selected?'>':')');
+		for (x=0;x<(*board).size;x++) {
+			if ((*board).cursor.x == x && (*board).cursor.y == y) {
+				printf("\b%c%c%c",(*board).selected?'<':'(',(*board).field[x][y],(*board).selected?'>':')');
 			} else {
-				printf("%c ",board.field[x][y]);
+				printf("%c ",(*board).field[x][y]);
 			}
 		}
-		for (x=0;x<14-board.size;x++) {
+		for (x=0;x<14-(*board).size;x++) {
 			printf(" ");
 		}
 		printf("\n");
@@ -154,21 +154,21 @@ bool moveRight(board_s *board) {
 	return success;
 }
 
-bool won(board_s board) {
+bool won(board_s *board) {
 	int8_t x,y;
 	int8_t count=0;
 	position_s last;
 
-	for (x=0;x<board.size;x++) {
-		for (y=0;y<board.size;y++) {
-			if (board.field[x][y]=='o') {
+	for (x=0;x<(*board).size;x++) {
+		for (y=0;y<(*board).size;y++) {
+			if ((*board).field[x][y]=='o') {
 				count++;
 				last.x = x;
 				last.y = y;
 			}
 		}
 	}
-	return count==1&&last.x==board.win.x&&last.y==board.win.y;
+	return count==1&&last.x==(*board).win.x&&last.y==(*board).win.y;
 }
 
 int8_t validMovesUp(board_s *board) {
@@ -200,15 +200,15 @@ bool gameEnded(board_s *board) {
 void initialize(board_s *board) {
 	int8_t x,y;
 	int8_t configuration[SIZE][SIZE*2] = {
-			"                  ",
-			"      o o o       ",
-			"      o o o       ",
-			"  o o o o o o o   ",
-			"  o o o . o o o   ",
-			"  o o o o o o o   ",
-			"      o o o       ",
-			"      o o o       ",
-			"                  "
+		"                  ",
+		"      o o o       ",
+		"      o o o       ",
+		"  o o o o o o o   ",
+		"  o o o . o o o   ",
+		"  o o o o o o o   ",
+		"      o o o       ",
+		"      o o o       ",
+		"                  "
 	};
 	(*board).size = 9;
 	(*board).cursor.x = 4;
@@ -217,6 +217,7 @@ void initialize(board_s *board) {
 	(*board).win.y = 4;
 	(*board).selected = false;
 
+	memset((*board).field,0,sizeof((*board).field));
 	for (y=0;y<(*board).size;y++) {
 		for (x=0;x<(*board).size;x++) {
 			(*board).field[x][y]=configuration[y][x*2];
@@ -251,11 +252,12 @@ void setBufferedInput(bool enable) {
 void signal_callback_handler(int signum) {
 	printf("         TERMINATED         \n");
 	setBufferedInput(true);
+	printf("\033[?25h");
 	exit(signum);
 }
 
 int main(int argc, char *argv[]) {
-	board_s board;
+	board_s board_alloc,*board=&board_alloc;
 	char c;
 	bool success;
 
@@ -264,8 +266,7 @@ int main(int argc, char *argv[]) {
 	// register signal handler for when ctrl-c is pressed
 	signal(SIGINT, signal_callback_handler);
 
-	memset(&board,0,sizeof(board));
-	initialize(&board);
+	initialize(board);
 	drawBoard(board);
 	setBufferedInput(false);
 	while (true) {
@@ -274,22 +275,22 @@ int main(int argc, char *argv[]) {
 			case 97:	// 'a' key
 			case 104:	// 'h' key
 			case 68:	// left arrow
-				success = moveLeft(&board);  break;
+				success = moveLeft(board);  break;
 			case 100:	// 'd' key
 			case 108:	// 'l' key
 			case 67:	// right arrow
-				success = moveRight(&board); break;
+				success = moveRight(board); break;
 			case 119:	// 'w' key
 			case 107:	// 'k' key
 			case 65:	// up arrow
-				success = moveUp(&board);    break;
+				success = moveUp(board);    break;
 			case 115:	// 's' key
 			case 106:	// 'j' key
 			case 66:	// down arrow
-				success = moveDown(&board);  break;
+				success = moveDown(board);  break;
 			case 10:	// enter key
 			case 13:	// enter key
-				success = select(&board);    break;
+				success = select(board);    break;
 			default: success = false;
 		}
 		if (success) {
@@ -298,44 +299,30 @@ int main(int argc, char *argv[]) {
 				printf("          YOU WON           \n");
 				break;
 			}
-			if (gameEnded(&board)) {
+			if (gameEnded(board)) {
 				printf("         GAME OVER          \n");
 				break;
 			}
 		}
 		if (c=='q') {
 			printf("        QUIT? (y/n)         \n");
-			while (true) {
 			c=getchar();
-				if (c=='y'){
-					setBufferedInput(true);
-					printf("\033[?25h");
-					exit(0);
-				}
-				else {
-					drawBoard(board);
-					break;
-				}
+			if (c=='y'){
+				break;
 			}
+			drawBoard(board);
 		}
 		if (c=='r') {
 			printf("       RESTART? (y/n)       \n");
-			while (true) {
 			c=getchar();
-				if (c=='y'){
-					memset(&board,0,sizeof(board));
-					initialize(&board);
-					drawBoard(board);
-					break;
-				}
-				else {
-					drawBoard(board);
-					break;
-				}
+			if (c=='y'){
+				initialize(board);
 			}
+			drawBoard(board);
 		}
 	}
 	setBufferedInput(true);
+	printf("\033[?25h");
 
 	return EXIT_SUCCESS;
 }
