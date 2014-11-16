@@ -34,14 +34,16 @@ typedef struct {
 void drawBoard(board_s *board) {
 	int8_t x,y,count=0;
 
-	printf("\033[H");
+	// move cursor to home position
+	printf("\e[H");
 
 	for (y=0;y<(*board).size;y++) {
 		for (x=0;x<(*board).size;x++) {
 			count+=(*board).field[x][y]=='o';
 		}
 	}
-	printf("peg-solitaire.c %7d pegs\n\n",count);
+	printf("peg-solitaire.c %7d pegs\n",count);
+	printf("\n");
 
 	for (y=0;y<(*board).size;y++) {
 		for (x=0;x<14-(*board).size;x++) {
@@ -49,7 +51,11 @@ void drawBoard(board_s *board) {
 		}
 		for (x=0;x<(*board).size;x++) {
 			if ((*board).cursor.x == x && (*board).cursor.y == y) {
-				printf("\b%c%c%c",(*board).selected?'<':'(',(*board).field[x][y],(*board).selected?'>':')');
+				if ((*board).selected) {
+					printf("\b|\e[7m%c\e[27m|",(*board).field[x][y]);
+				} else {
+					printf("\e[7m%c\e[27m ",(*board).field[x][y]);
+				}
 			} else {
 				printf("%c ",(*board).field[x][y]);
 			}
@@ -59,9 +65,9 @@ void drawBoard(board_s *board) {
 		}
 		printf("\n");
 	}
-	printf("\n");
-	printf("     ←,↑,→,↓,q or enter     \n");
-	printf("\033[A");
+	printf("                            \n");
+	printf("   arrow keys, q or enter   \n");
+	printf("\e[A"); // one line up
 }
 
 void rotateBoard(board_s *board) {
@@ -292,7 +298,7 @@ void setBufferedInput(bool enable) {
 void signal_callback_handler(int signum) {
 	printf("         TERMINATED         \n");
 	setBufferedInput(true);
-	printf("\033[?25h");
+	printf("\e[?25h\e[0m");
 	exit(signum);
 }
 
@@ -314,7 +320,8 @@ int main(int argc, char *argv[]) {
 		layout = 4;
 	}
 
-	printf("\033[?25l\033[2J\033[H");
+	// reset, hide cursor and clear screen
+	printf("\e[0m\e[?25l\e[2J");
 
 	// register signal handler for when ctrl-c is pressed
 	signal(SIGINT, signal_callback_handler);
@@ -375,7 +382,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	setBufferedInput(true);
-	printf("\033[?25h");
+	printf("\e[?25h\e[0m");
 
 	return EXIT_SUCCESS;
 }
