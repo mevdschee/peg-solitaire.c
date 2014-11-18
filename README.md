@@ -1,7 +1,7 @@
 peg-solitaire.c
 ======
 
-![screenshot](http://www.leaseweblabs.com/wp-content/uploads/2014/11/peg-solitaire.png)
+![screenshot](http://www.leaseweblabs.com/wp-content/uploads/2014/11/peg-solitaire.png?new)
 
 Console version of the game "peg-solitaire" for GNU/Linux
 
