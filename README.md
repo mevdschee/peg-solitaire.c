@@ -7,7 +7,7 @@ Console version of the game "peg-solitaire" for GNU/Linux
 
 ### Gameplay
 
-You can move the cursor in four directions using the arrow keys: up, down, left, and right. Use the enter/return key to select (or deselect) a peg. Pegs can then be moved using the arrow keys. Restart and undo are with 'r' and 'u'. A peg can only move if it can jump over a adjacent peg and land on an empty space. A peg is represented by a circle and a empty space by a dot. You win the game when you end with one peg in the center position. When there are no more moves possible the game is over.
+You can move the cursor in four directions using the arrow keys: up, down, left, and right. Use the enter/return key to select (or deselect) a peg. Pegs can then be moved using the arrow keys. Quit, restart and undo keys are 'q', 'r' and 'u'. A peg can only move if it can jump over a adjacent peg and land on an empty space. A peg is represented by a circle and a empty space by a dot. You win the game when you end with one peg in the center position. When there are no more moves possible the game is over.
 
 ### Requirements
 
