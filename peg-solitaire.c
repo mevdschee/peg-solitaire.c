@@ -304,8 +304,10 @@ void signal_callback_handler(int signum) {
 
 int main(int argc, char *argv[]) {
 	board_s board_alloc,*board=&board_alloc;
+	board_s history[SIZE*SIZE];
+	int8_t moves = 0;
 	char c;
-	bool success;
+	bool success,move;
 	int8_t layout = 3;
 
 	if (true&& argc == 2 && strcmp(argv[1],"french")==0) {
@@ -327,10 +329,12 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT, signal_callback_handler);
 
 	initialize(board,layout);
+	memcpy(&history[moves],board,sizeof(*board));
 	drawBoard(board);
 	setBufferedInput(false);
 	while (true) {
 		c=getchar();
+		move = (*board).selected;
 		switch(c) {
 			case 97:	// 'a' key
 			case 104:	// 'h' key
@@ -350,10 +354,15 @@ int main(int argc, char *argv[]) {
 				success = moveDown(board);  break;
 			case 10:	// enter key
 			case 13:	// enter key
-				success = select(board);    break;
+				success = select(board);
+				move    = false;            break;
 			default: success = false;
 		}
 		if (success) {
+			if (move) {
+				moves++;
+				memcpy(&history[moves],board,sizeof(*board));
+			}
 			drawBoard(board);
 			if (won(board)) {
 				printf("          YOU WON           \n");
@@ -377,6 +386,17 @@ int main(int argc, char *argv[]) {
 			c=getchar();
 			if (c=='y'){
 				initialize(board,layout);
+				moves=0;
+				memcpy(&history[moves],board,sizeof(*board));
+			}
+			drawBoard(board);
+		}
+		if (c=='u') {
+			printf("        UNDO? (y/n)         \n");
+			c=getchar();
+			if (c=='y' && moves){
+				moves--;
+				memcpy(board,&history[moves],sizeof(*board));
 			}
 			drawBoard(board);
 		}
