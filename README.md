@@ -11,7 +11,8 @@ You can move the cursor in four directions using the arrow keys: up, down, left,
 
 ![layouts](http://www.leaseweblabs.com/wp-content/uploads/2014/11/peg-solitaire_layouts.png)
 
-The above layouts are supported. You may specify them as the first argument. If no layout is specified, then "English" is chosen.
+The above layouts are supported ([image source](
+https://en.wikipedia.org/wiki/Peg_solitaire#/media/File:Peg_Solitaire_game_board_shapes.svg)). You may specify them as the first argument. If no layout is specified, then "English" is chosen.
 
 ### Requirements
 
