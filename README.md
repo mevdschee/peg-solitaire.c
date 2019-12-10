@@ -1,7 +1,9 @@
 peg-solitaire.c
 ======
 
-![screenshot](http://www.leaseweblabs.com/wp-content/uploads/2014/11/peg-solitaire.png?new)
+[![run on repl.it](http://repl.it/badge/github/mevdschee/peg-solitaire.c)](https://repl.it/github/mevdschee/peg-solitaire.c)
+
+![screenshot](screenshot.png)
 
 Console version of the game "peg-solitaire" for GNU/Linux
 
