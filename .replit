@@ -1,2 +1,0 @@
-language = "bash"
-run = "gcc ./peg-solitaire.c -o peg-solitaire && chmod +x peg-solitaire && ./peg-solitaire"
